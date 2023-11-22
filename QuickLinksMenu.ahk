@@ -52,6 +52,10 @@ Class QuickLinksMenu{ ; Just run it one time at the start.
 			this.oMenu.%Folder2Menu%.Add(Folder1, this.oMenu.%Folder1Menu%) ; Create submenu
 			this.oMenu.%Folder2Menu%.SetIcon(Folder1, A_Windir "\syswow64\SHELL32.dll", "5") ; icon for folder
 		}
+		LightTheme := RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize", "AppsUseLightTheme")
+		if !LightTheme{
+			this.SetDarkMode()
+		}
 		return this.oMenu
 	}
 
@@ -136,6 +140,14 @@ Class QuickLinksMenu{ ; Just run it one time at the start.
 		If (HMOD)
 			DllCall("FreeLibrary", "Ptr", HMOD)
 		Return (NumGet(Param, 8, "UInt")) ? NumGet(Param, 4, "UInt") : 0
+	}
+
+	SetDarkMode(){
+		uxtheme := DllCall("GetModuleHandle", "str", "uxtheme", "ptr")
+		SetPreferredAppMode := DllCall("GetProcAddress", "ptr", uxtheme, "ptr", 135, "ptr")
+		FlushMenuThemes := DllCall("GetProcAddress", "ptr", uxtheme, "ptr", 136, "ptr")
+		DllCall(SetPreferredAppMode, "int", 1) ; Dark
+		DllCall(FlushMenuThemes)
 	}
 }
 
